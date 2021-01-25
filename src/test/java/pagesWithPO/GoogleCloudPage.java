@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class GoogleCloudPage extends AbstractPage{
 
-    JavascriptExecutor je = (JavascriptExecutor) driver;
+    JavascriptExecutor js = (JavascriptExecutor) driver;
 
     public GoogleCloudPage(WebDriver driver) {
         super(driver);
@@ -21,12 +21,8 @@ public class GoogleCloudPage extends AbstractPage{
 
     public void findGooglePricingCalculator(String textForSearch) {
         WebElement googleSearchField = waitForElementLocatedBy(driver, By.xpath("//input[@name='q']"));
-        // WebElement textForGoogleSearch = driver.findElement(By.xpath("//input[@name='q']"));
         googleSearchField.sendKeys(textForSearch);
         googleSearchField.sendKeys(Keys.ENTER);
-//        new WebDriverWait(driver, 10)
-//                .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='q']")))
-//                .sendKeys(textForSearch);
     }
 
     public void openGooglePricingCalculator() {
@@ -70,17 +66,17 @@ public class GoogleCloudPage extends AbstractPage{
     }
 
     public void AddFieldSeries() {
-        driver.switchTo().defaultContent(); // перейти из фрейма назад
-        ((JavascriptExecutor)driver).executeScript("scroll(0,400)");
-        WebElement firstFrame = waitForElementLocatedBy(driver, By.xpath("//iframe[contains(@name,'goog_')]"));
-        driver.switchTo().frame(firstFrame); //Переключаемся на первый iframe
-        driver.switchTo().frame(0); //Переключаемся на первый iframe внутри родительского iframe
+//        driver.switchTo().defaultContent(); // перейти из фрейма назад
+//        ((JavascriptExecutor)driver).executeScript("scroll(0,400)");
+//        WebElement firstFrame = waitForElementLocatedBy(driver, By.xpath("//iframe[contains(@name,'goog_')]"));
+//        driver.switchTo().frame(firstFrame); //Переключаемся на первый iframe
+//        driver.switchTo().frame(0); //Переключаемся на первый iframe внутри родительского iframe
         WebElement addFieldSeries = waitForElementLocatedBy(driver, By.
                 xpath("//md-select-value[@id='select_value_label_59']"));
         addFieldSeries.click();
-        // Thread.sleep(1000);
         WebElement changeFieldSeries = waitForElementLocatedBy(driver, By.
                 xpath("//div[@class='md-select-menu-container md-active md-clickable']//md-option[@value='n1']"));
+        js.executeScript("arguments[0].scrollIntoView(true);",changeFieldSeries);
         changeFieldSeries.click();
     }
 
@@ -88,11 +84,9 @@ public class GoogleCloudPage extends AbstractPage{
         WebElement addFieldMachineType = waitForElementLocatedBy(driver, By.
                 xpath("//md-select-value[@id='select_value_label_60']"));
         addFieldMachineType.click();
-        // Thread.sleep(1000);
         WebElement changeFieldMachineType = waitForElementLocatedBy(driver, By.
-                //xpath("//md-option[@id='select_option_413' and @value='CP-COMPUTEENGINE-VMIMAGE-N2-STANDARD-32']"));
                         xpath("//div[@class='md-select-menu-container md-active md-clickable']//md-option[@value='CP-COMPUTEENGINE-VMIMAGE-N1-STANDARD-8']"));
-        //je.executeScript("arguments[0].scrollIntoView(true);",changeFieldMachineType);
+        js.executeScript("arguments[0].scrollIntoView(true);",changeFieldMachineType);
         changeFieldMachineType.click();
 
     }
@@ -104,16 +98,12 @@ public class GoogleCloudPage extends AbstractPage{
     }
 
     public void AddFieldNumberOfGPUs() {
-        driver.switchTo().defaultContent(); // перейти из фрейма назад
-        ((JavascriptExecutor)driver).executeScript("scroll(0,400)");
-        WebElement firstFrame = waitForElementLocatedBy(driver, By.xpath("//iframe[contains(@name,'goog_')]"));
-        driver.switchTo().frame(firstFrame); //Переключаемся на первый iframe
-        driver.switchTo().frame(0); //Переключаемся на первый iframe внутри родительского iframe
         WebElement addFieldNumberOfGPUs = waitForElementLocatedBy(driver, By.
                 xpath("//md-select-value[@id='select_value_label_392']"));
         addFieldNumberOfGPUs.click();
         WebElement changeFieldNumberOfGPUs = waitForElementLocatedBy(driver, By.
                 xpath("//div[@class='md-select-menu-container md-active md-clickable']//md-option[@value='1']"));
+        js.executeScript("arguments[0].scrollIntoView(true);",changeFieldNumberOfGPUs);
         changeFieldNumberOfGPUs.click();
     }
 
@@ -161,7 +151,7 @@ public class GoogleCloudPage extends AbstractPage{
 
     public void OpenAndCopyEmailPage() {
         String cloudWindowHandler = driver.getWindowHandle();
-        je.executeScript("window.open('https://10minutemail.com','_blank');");
+        js.executeScript("window.open('https://10minutemail.com','_blank');");
         ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
         driver.switchTo().window(tabs.get(1));
         String emailWindowHandler = driver.getWindowHandle();
@@ -184,13 +174,9 @@ public class GoogleCloudPage extends AbstractPage{
         WebElement sendEmailEstimate = waitForElementLocatedBy(driver, By.
                 xpath("//input[@name='description' and @type='email']"));
         sendEmailEstimate.sendKeys(Keys.chord(Keys.LEFT_CONTROL,"v"));
-//        WebElement sendEmailButton = waitForElementLocatedBy(driver, By.
-//                xpath("//button[@aria-label='Send Email']"));
-//        sendEmailButton.click();
-//        driver.findElement(By.xpath("//button[@aria-label='Send Email']"))
-//                .click();
-        WebElement sendEmailButton = new WebDriverWait(driver,100).
+        WebElement sendEmailButton = new WebDriverWait(driver,50).
                 until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@aria-label='Send Email']")));
+        sendEmailButton.isEnabled();
         sendEmailButton.click();
     }
 
@@ -199,6 +185,7 @@ public class GoogleCloudPage extends AbstractPage{
         driver.switchTo().window(tabs.get(1));
         WebElement checkEmailEstimate = new WebDriverWait(driver,100).
                 until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='message_top']")));
+        js.executeScript("arguments[0].scrollIntoView(true);",checkEmailEstimate);
         checkEmailEstimate.click();
 
         String expectedEstimatedCost = "USD 1,082.77";
@@ -208,10 +195,10 @@ public class GoogleCloudPage extends AbstractPage{
         Assert.assertEquals(currentEstimatedCost,expectedEstimatedCost);
     }
 
+    // отдельный метод для многократного использования
     private static WebElement waitForElementLocatedBy(WebDriver driver, By by) {
         WebElement searchElement = new WebDriverWait(driver,10).
-                until(ExpectedConditions.presenceOfElementLocated(by)); // отдельный метод для многократного использования
+                until(ExpectedConditions.presenceOfElementLocated(by));
         return searchElement;
     }
-
 }
